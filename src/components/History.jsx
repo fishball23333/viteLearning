@@ -3,16 +3,15 @@ import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 import {useState} from 'react'
 import Table from 'react-bootstrap/Table'
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 
-const HistoryResult = ({result, input})=>{
-    console.log(result)
-    console.log(input)
+const HistoryResult = ({result, input, searchType})=>{
     if (result == "nothing"){
         return (
             <>
                 <hr/>
-                <h3>ID &#34;{input}&#34; was not found</h3>
+            
+                <h3>{searchType} &#34;{input}&#34; was not found</h3>
             </>
         )
     }
@@ -31,7 +30,7 @@ const HistoryResult = ({result, input})=>{
             <tbody>
                 <tr>
                     <td>{result.id}</td>
-                    <td>{result.title}</td>
+                    <td>{result.customer}</td>
                 </tr>
             </tbody>
             </Table>
@@ -40,52 +39,52 @@ const HistoryResult = ({result, input})=>{
     )
 }
 
+    
 const History = () => {
-    // let {complete} = tasks
-    const [data, setData] = useState()
-    useEffect(()=>{getData()}, [])
-    const getData=()=>{
-        fetch('db.json'
-        ,{
-            headers:{
-                'Content-Type':"application/json", 
-                'Accept':'application/json'
-            }
-        }).then(function (response) {
-            console.log(response)
-            return response.json()
-        }).then(function(myJson){
-            console.log(myJson)
-            setData(myJson)
-        })
-    }
-    return (<>{data && <HistoryChild complete={data[0].complete}/>}</>)
-    }
-const HistoryChild = ({complete}) => {
-    console.log("complete is: ", complete)
     const [input, updateInput] = useState("")
     const [searchType, updateSearchType] = useState("")
     const [result, updateResult] = useState()
-
-
-
+    const [data, setData] = useState()
+    const [loading, setLoading] = useState(false)
     const handleSubmit = (e) =>{
-        console.log("input is ", input)
         if (searchType===""){
             alert("your need to select a search type")
         } else {
             e.preventDefault()
-            if (searchType==="id"){
-                const result = complete.find((e)=>e.id==input)
-                if (result){
-                    updateResult(result)
-                } else {
-                    updateResult("nothing")
-                }
+            setLoading(true)
+            fetch("http://localhost:8080/complete")
+            .then(function (response) {
+                console.log(response)
+                return response.json()
+            }).then(function(myJson){
+                console.log("myjson", myJson)
+                setData(myJson)
+            })
             }
         }
-        console.log("search type is : ", searchType)
-    }
+    useEffect(()=>{
+        console.log("data is", data)
+ 
+        if (searchType==="id"){
+            console.log("data is2", data)
+            const result = data.find((e)=>e.id==input)
+            console.log("result is ", result)
+            if (result){
+                updateResult(result)
+            } else {
+                updateResult("nothing")
+            }
+        } else if (searchType==="customer"){
+            const result = data.find((e)=>e.customer==input)
+            if (result){
+                updateResult(result)
+            } else {
+                updateResult("nothing")
+            }
+        }
+        setLoading(false)
+          // eslint-disable-next-line react-hooks/exhaustive-deps
+    },[data])
     return (  
         <Container>
             <Form onSubmit={handleSubmit}>
@@ -116,7 +115,6 @@ const HistoryChild = ({complete}) => {
                               value={input} 
                               onChange={e=>{
                                     if (e.target.value != input && result != null){
-
                                         updateResult(null)
                                     }
                                   updateInput(e.target.value)
@@ -125,7 +123,8 @@ const HistoryChild = ({complete}) => {
             </Form.Group>
             <Button variant="primary" type="submit">Submit</Button>
             </Form>
-            {result && <HistoryResult result={result} input={input} />}
+            {loading &&<>loading...</>}
+            {result && <HistoryResult result={result} input={input} searchType={searchType}/>}
         </Container>
     );
 }

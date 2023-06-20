@@ -4,13 +4,13 @@ import Task from './Task'
 import "./Column.css"
 
 
-const Column = ({title, tasks, DroppableID}) => {
+const Column = ({customer, tasks, DroppableID}) => {
   console.log("tasks", tasks)
   return (
     <div className='column'>
-        <h3 className='columnTitle'>{title}</h3>
+        <h3 className='columnTitle'>{customer}</h3>
         <Droppable droppableId={DroppableID} >
-            {(provided, snapshot) => (
+            {(provided) => (
               <div ref={provided.innerRef} 
                 {...provided.droppableProps}  
                 className='droppableItem'>{

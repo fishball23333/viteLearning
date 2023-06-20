@@ -1,16 +1,6 @@
 import {Draggable} from "react-beautiful-dnd"
 import './Task.css'
-function bgcolorChange(props){
-    return props.isDragging 
-        ? "lightgreen" 
-        : props.isDraggable 
-            ? props.isBacklog 
-            ? "#F2D7D5"
-            : "#DCDCDC" 
-        : props.isBacklog 
-        ? "#F2D7D5" 
-        : "#fffada"
-}
+
 
 const Task = ({task, index}) => {
     return ( 
@@ -30,7 +20,7 @@ const Task = ({task, index}) => {
                 style={style}
             >
                 <div style={{display:"flex", justifyContent:"center", padding: 2}}>
-                    <h3>{task.title}</h3>
+                    <h3>{task.customer}</h3>
                 </div>
                 {provided.placeholder}
         </div>)}

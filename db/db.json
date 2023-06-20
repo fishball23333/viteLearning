@@ -1,0 +1,53 @@
+{
+  "backlog": [
+    {
+      "id": "0",
+      "customer": "Beijing"
+    },
+    {
+      "id": 1,
+      "customer": "Shanghai"
+    },
+    {
+      "id": 2,
+      "customer": "Guangzhou"
+    },
+    {
+      "customer": "yudan",
+      "orderItem": "Item A",
+      "id": "1687310624975"
+    }
+  ],
+  "stageOne": [
+    {
+      "id": 4,
+      "customer": "Toronto"
+    },
+    {
+      "id": 5,
+      "customer": "Chicago"
+    }
+  ],
+  "stageTwo": [
+    {
+      "id": 6,
+      "customer": "New York"
+    },
+    {
+      "id": 7,
+      "customer": "Fuzhou"
+    }
+  ],
+  "stageThree": [
+    {
+      "id": 8,
+      "customer": "Hangzhou"
+    }
+  ],
+  "complete": [
+    {
+      "id": 9,
+      "customer": "Wenzhou"
+    }
+  ]
+}

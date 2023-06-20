@@ -1,37 +1,56 @@
 import { DragDropContext } from 'react-beautiful-dnd'
-import {useState} from 'react'
+import {useEffect, useState} from 'react'
 import Column from './Column.jsx'
 import "./KanbanBoard.css"
-import tasks from '../assets/db.js'
-export default function KanbanBoard() {
-    let {backlog, stageOne, stageTwo, stageThree,  complete} = tasks
-    console.log("stageone", stageOne)
-    console.log("complete", complete)
-    const [backlogList, updateTasks] = useState(backlog)
-    const [stageOneList, updateStageOne] = useState(stageOne)
-    const [stageTwoList, updateStageTwo] = useState(stageTwo)
-    const [stageThreeList, updateStageThree] = useState(stageThree)
-    const [completeList, updateComplete] = useState(complete)
+
+
+
+export default function KanbanBoard(){
+    const [data, setData] = useState()
+    useEffect(()=>{
+        Promise.all([
+            fetch("http://localhost:8080/backlog"),
+            fetch("http://localhost:8080/stageOne"),
+            fetch("http://localhost:8080/stageTwo"), 
+            fetch("http://localhost:8080/stageThree"), 
+            fetch("http://localhost:8080/complete")
+        ]).then((res)=>
+            Promise.all(res.map((item)=>item.json()))
+        ).then(([backlog, stageOne, stageTwo, stageThree, complete])=>{
+            const obj = {backlog: backlog, 
+                        stageOne: stageOne, 
+                        stageTwo: stageTwo, 
+                        stageThree: stageThree, 
+                        complete: complete}
+            setData(obj)
+        })
+    }, [])
+    return (<>{data && <Board data={data}/>}</>)
+}
+function Board({data}) {
+    console.log("data is ", data)
+    const [backlogList, updateTasks] = useState(data.backlog)
+    const [stageOneList, updateStageOne] = useState(data.stageOne)
+    const [stageTwoList, updateStageTwo] = useState(data.stageTwo)
+    const [stageThreeList, updateStageThree] = useState(data.stageThree)
+    const [stageFourList, updateStageFour] = useState(data.complete)
     function handleOnDragEnd(result){
         console.log("result is :", result)
         function findArray(id){
-            console.log("id is:  ", id)
-            if (id == "backlogList"){
-                return [backlogList, updateTasks]
-            } else if (id == "stageOneList"){
-                                console.log("...")
-                return [stageOneList, updateStageOne]
-            } else if (id == "stageTwoList"){
-                                console.log("...")
-                return [stageTwoList, updateStageTwo]
-            } else if (id=="completeList"){
-                return [completeList, updateComplete]
-            } else if (id=="stageThreeList"){
-                return [stageThreeList, updateStageThree]
+            switch(id){
+                case "backlogList":
+                    return [backlogList, updateTasks]
+                case "stageOneList":
+                    return [stageOneList, updateStageOne]
+                case "stageTwoList":
+                    return [stageTwoList, updateStageTwo]
+                case "stageThreeList":
+                    return [stageThreeList, updateStageThree]
+                case "stageFourList":
+                    return [stageFourList, updateStageFour]
+                default: 
+                    return false
             }
-            else {
-                console.log("...")
-                return false}
         }
         if (!result.destination) return;
         if (result.destination.droppableId === result.source.droppableId){
@@ -60,18 +79,17 @@ export default function KanbanBoard() {
     }
   return (
     <div className="kanbanBoard">
-    <h2 style={{textAlign:"center"}}>Kanban</h2>
-    <DragDropContext onDragEnd={handleOnDragEnd}>
-        <div className="dragDropContext">
-        <Column title={"Backlog"} tasks={backlogList} DroppableID="backlogList"/> 
-        <Column title={"Stage one"} tasks={stageOneList} DroppableID="stageOneList"/> 
-        <Column title={"Stage two"} tasks={stageThreeList} DroppableID={"stageThreeList"}/>
-        <Column title={"Stage three"} tasks={stageTwoList} DroppableID="stageTwoList"/> 
-        <Column title={"Stage four"} tasks={completeList} DroppableID="completeList"/>
-        <Column title={"Complete"} tasks={[]} DroppableID="completeList"/>
-        </div>
-    </DragDropContext>
+        <h2 style={{textAlign:"center"}}>Kanban</h2>
+        <DragDropContext onDragEnd={handleOnDragEnd}>
+            <div className="dragDropContext">
+            <Column customer={"Backlog"} tasks={backlogList} DroppableID="backlogList"/> 
+            <Column customer={"Stage one"} tasks={stageOneList} DroppableID="stageOneList"/> 
+            <Column customer={"Stage two"} tasks={stageThreeList} DroppableID={"stageThreeList"}/>
+            <Column customer={"Stage three"} tasks={stageTwoList} DroppableID="stageTwoList"/> 
+            <Column customer={"Stage four"} tasks={stageFourList} DroppableID="stageFourList"/>
+            <Column customer={"Complete"} tasks={[]} DroppableID="completeList"/>
+            </div>
+        </DragDropContext>
     </div>
-
     )
 }
