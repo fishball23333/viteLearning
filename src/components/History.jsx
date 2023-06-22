@@ -89,7 +89,7 @@ const History = () => {
         <Container>
             <Form onSubmit={handleSubmit}>
              <Form.Group className="mb-3">
-                <Form.Label style={{display:"block"}}>What are you searching for ?</Form.Label>
+                <Form.Label style={{display:"block"}}>What are you searching for ? (will only the completed orders)</Form.Label>
             <Form.Check type="radio" 
                         value="customer" 
                         name="searchType" 

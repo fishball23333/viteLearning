@@ -1,34 +1,31 @@
 {
   "backlog": [
     {
-      "id": "0",
-      "customer": "Beijing"
-    },
-    {
-      "id": 1,
-      "customer": "Shanghai"
-    },
+      "customer": "yudan",
+      "orderItem": "Item A",
+      "id": "1687394021737"
+    }
+  ],
+  "stageOne": [
     {
       "id": 2,
       "customer": "Guangzhou"
     },
     {
-      "customer": "yudan",
-      "orderItem": "Item A",
-      "id": "1687310624975"
-    }
-  ],
-  "stageOne": [
-    {
-      "id": 4,
-      "customer": "Toronto"
+      "id": 8,
+      "customer": "Hangzhou"
     },
     {
-      "id": 5,
-      "customer": "Chicago"
+      "id": 10,
+      "customer": "Houston"
+    },
+    {
+      "id": 1,
+      "customer": "Beijing"
     }
   ],
-  "stageTwo": [
+  "stageTwo": [],
+  "stageThree": [
     {
       "id": 6,
       "customer": "New York"
@@ -38,16 +35,6 @@
       "customer": "Fuzhou"
     }
   ],
-  "stageThree": [
-    {
-      "id": 8,
-      "customer": "Hangzhou"
-    }
-  ],
-  "complete": [
-    {
-      "id": 9,
-      "customer": "Wenzhou"
-    }
-  ]
+  "stageFour": [],
+  "complete": []
 }

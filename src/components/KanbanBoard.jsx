@@ -2,6 +2,7 @@ import { DragDropContext } from 'react-beautiful-dnd'
 import {useEffect, useState} from 'react'
 import Column from './Column.jsx'
 import "./KanbanBoard.css"
+import Button from 'react-bootstrap/Button'
 
 
 
@@ -13,15 +14,15 @@ export default function KanbanBoard(){
             fetch("http://localhost:8080/stageOne"),
             fetch("http://localhost:8080/stageTwo"), 
             fetch("http://localhost:8080/stageThree"), 
-            fetch("http://localhost:8080/complete")
+            fetch("http://localhost:8080/stageFour")
         ]).then((res)=>
             Promise.all(res.map((item)=>item.json()))
-        ).then(([backlog, stageOne, stageTwo, stageThree, complete])=>{
+        ).then(([backlog, stageOne, stageTwo, stageThree, stageFour])=>{
             const obj = {backlog: backlog, 
                         stageOne: stageOne, 
                         stageTwo: stageTwo, 
                         stageThree: stageThree, 
-                        complete: complete}
+                        stageFour: stageFour}
             setData(obj)
         })
     }, [])
@@ -33,7 +34,8 @@ function Board({data}) {
     const [stageOneList, updateStageOne] = useState(data.stageOne)
     const [stageTwoList, updateStageTwo] = useState(data.stageTwo)
     const [stageThreeList, updateStageThree] = useState(data.stageThree)
-    const [stageFourList, updateStageFour] = useState(data.complete)
+    const [stageFourList, updateStageFour] = useState(data.stageFour)
+    const [completeList, updateCompleteList] = useState([])
     function handleOnDragEnd(result){
         console.log("result is :", result)
         function findArray(id){
@@ -48,6 +50,8 @@ function Board({data}) {
                     return [stageThreeList, updateStageThree]
                 case "stageFourList":
                     return [stageFourList, updateStageFour]
+                case "completeList":
+                    return [completeList, updateCompleteList]
                 default: 
                     return false
             }
@@ -78,8 +82,9 @@ function Board({data}) {
         }
     }
   return (
+    <>
     <div className="kanbanBoard">
-        <h2 style={{textAlign:"center"}}>Kanban</h2>
+        <h2>Kanban</h2>
         <DragDropContext onDragEnd={handleOnDragEnd}>
             <div className="dragDropContext">
             <Column customer={"Backlog"} tasks={backlogList} DroppableID="backlogList"/> 
@@ -87,9 +92,78 @@ function Board({data}) {
             <Column customer={"Stage two"} tasks={stageThreeList} DroppableID={"stageThreeList"}/>
             <Column customer={"Stage three"} tasks={stageTwoList} DroppableID="stageTwoList"/> 
             <Column customer={"Stage four"} tasks={stageFourList} DroppableID="stageFourList"/>
-            <Column customer={"Complete"} tasks={[]} DroppableID="completeList"/>
+            <Column customer={"Complete"} tasks={completeList} DroppableID="completeList"/>
             </div>
         </DragDropContext>
+        <hr />
+        <div style={{textAlign:"right"}}>
+            <Button variant="primary" onClick={()=>save(backlogList,  stageOneList, stageTwoList, stageThreeList, stageFourList, completeList)}>Click to save</Button>
+        </div>
     </div>
+    </>
     )
+}
+
+async function save(backlogList,  stageOneList, stageTwoList, stageThreeList, stageFourList, completeList){
+    async function update(stageName, list){
+        let stageOneIDs = []
+        await fetch(`http://localhost:8080/${stageName}`, {
+                headers:{
+                    "Content-Type":"application/json", 
+                    "Accept":"application/json"
+                }
+            }).then((res)=>{
+                return res.json()
+            }).then((data)=>{
+                stageOneIDs = data.map((item)=>item.id)
+            })
+
+            if (stageOneIDs.length !== 0){
+                console.log("length is ", stageOneIDs)
+                await Promise.all(stageOneIDs.map( async (id)=>{
+                    console.log("id is ", id)
+                    return await fetch(`http://localhost:8080/${stageName}/${id}`, {
+                        method: "DELETE", 
+                        headers:{
+                            "Content-Type":"application/json", 
+                            "Accept":"application/json"
+                        }
+                    })
+                }))
+            }
+
+            if (list.length !== 0){
+                await list.map(item=>{
+                    fetch(`http://localhost:8080/${stageName}`, {
+                        method: "POST", 
+                        headers:{"Content-Type":"application/json", 
+                                "Accept":"application/json"
+                        },
+                    body: JSON.stringify(item)
+                    })
+                })
+            }
+            
+    }
+    
+    await update("backlog", backlogList)
+    await update("stageOne", stageOneList)
+    await update("stageTwo", stageTwoList)
+    await update("stageThree", stageThreeList)
+    await update("stageFour", stageFourList)
+    
+
+
+
+    await completeList.map(item=>{
+        fetch('http://localhost:8080/complete', {
+            method: "POST", 
+            headers:{"Content-Type":"application/json", 
+                    "Accept":"application/json"
+            },
+        body: JSON.stringify(item)
+        })
+    })
+
+    console.log("save complete")
 }
